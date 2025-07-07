@@ -60,7 +60,7 @@ async def upload_book(
     }
 
     # Ajoute la nouvelle entrée
-    add_books(str(file_location), isbn)  # Indexe le livre
+    add_books(str(file_location), new_book)  # Indexe le livre
 
     return {"message": "Livre ajouté avec succès", "book": new_book}
 
