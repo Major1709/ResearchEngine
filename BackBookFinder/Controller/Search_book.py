@@ -10,13 +10,13 @@ import json
 import pickle
 from langchain_community.docstore.in_memory import InMemoryDocstore
 
-llm = ChatMistralAI(api_key="1gup54p92G4fK7FkyspPGsCoM4QUi2jO", model="mistral-medium", temperature=0.7)
+llm = ChatMistralAI(api_key="1gup54p92G4fK7FkyspPGsCoM4QUi2jO", model="mistral-medium", temperature=0.1)
 #llm = OllamaLLM(model="qwen3:8b",n_threads=8,temperature=0.5)  # s'assure que 'llama3' est disponible dans `ollama list`
 
 prompt_template = """
-Tu es un assistant intelligent spécialisé dans la recherche documentaire, livre et de memoire.
+Tu es un assistant intelligent spécialisé dans la recommandation documentaire, livre et de memoire.
 
-renvoi les titre des documents que tu trouve.
+a partir de chaque context resume se que tu a trouver sans reprendre les passage des documents.
 
 Si aucun des information dans les documents ne concerne pas au context de sujet souhaité réponds :
 "Aucun information trouver."
@@ -65,7 +65,7 @@ vectorstore = load_vector_store("vector_index_bge_hnsw", embeddings)
 # === Construire le pipeline Q&A
 qa_chain = RetrievalQA.from_chain_type(
     llm=llm,
-    retriever=vectorstore.as_retriever(search_kwargs={"k": 5}),
+    retriever=vectorstore.as_retriever(search_kwargs={"k": 20}),
     chain_type="stuff",
     return_source_documents=True,
     chain_type_kwargs={"prompt": prompt}
@@ -81,7 +81,7 @@ def search_books(query):
     if "Aucun information trouver." in result["result"]:
         return []
     
-    sources = {doc.metadata.get("title", "Inconnu") for doc in result["source_documents"]}
+    sources = {doc.metadata.get("isbn", "Inconnu") for doc in result["source_documents"]}
     print("\n📚 Livres utilisés :")
     for source in sources:
         print("•", source)
